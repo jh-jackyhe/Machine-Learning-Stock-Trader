@@ -10,7 +10,7 @@ class RTLearner(object):
     :type verbose: bool
     """
 
-    def __init__(self, leaf_size, verbose=False):
+    def __init__(self, leaf_size, verbose=True):
         """
         Constructor method
         """
@@ -18,18 +18,11 @@ class RTLearner(object):
         self.verbose = verbose
         pass  # move along, these aren't the drones you're looking for
 
-    def author(self):
-        """
-        :return: The GT username of the student
-        :rtype: str
-        """
-        return "zhe343"  # replace tb34 with your Georgia Tech username
-
     def build_tree(self, data_x, data_y):
         if data_y.shape[0] <= self.leaf_size:
             # print(type(stats.mode(data_y)[0][0]))
             # print("1")
-            return np.array([[-1, stats.mode(data_y)[0][0], np.nan, np.nan]])
+            return np.array([[-1, stats.mode(data_y).mode, np.nan, np.nan]])
         if np.max(data_y) == np.min(data_y):
             # print(type(data_y[0]))
             # print("2")

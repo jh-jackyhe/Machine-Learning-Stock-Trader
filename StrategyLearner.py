@@ -1,41 +1,10 @@
-""""""
-"""  		  	   		   	 		  		  		    	 		 		   		 		  
-Template for implementing StrategyLearner  (c) 2016 Tucker Balch  		  	   		   	 		  		  		    	 		 		   		 		  
-  		  	   		   	 		  		  		    	 		 		   		 		  
-Copyright 2018, Georgia Institute of Technology (Georgia Tech)  		  	   		   	 		  		  		    	 		 		   		 		  
-Atlanta, Georgia 30332  		  	   		   	 		  		  		    	 		 		   		 		  
-All Rights Reserved  		  	   		   	 		  		  		    	 		 		   		 		  
-  		  	   		   	 		  		  		    	 		 		   		 		  
-Template code for CS 4646/7646  		  	   		   	 		  		  		    	 		 		   		 		  
-  		  	   		   	 		  		  		    	 		 		   		 		  
-Georgia Tech asserts copyright ownership of this template and all derivative  		  	   		   	 		  		  		    	 		 		   		 		  
-works, including solutions to the projects assigned in this course. Students  		  	   		   	 		  		  		    	 		 		   		 		  
-and other users of this template code are advised not to share it with others  		  	   		   	 		  		  		    	 		 		   		 		  
-or to make it available on publicly viewable websites including repositories  		  	   		   	 		  		  		    	 		 		   		 		  
-such as github and gitlab.  This copyright statement should not be removed  		  	   		   	 		  		  		    	 		 		   		 		  
-or edited.  		  	   		   	 		  		  		    	 		 		   		 		  
-  		  	   		   	 		  		  		    	 		 		   		 		  
-We do grant permission to share solutions privately with non-students such  		  	   		   	 		  		  		    	 		 		   		 		  
-as potential employers. However, sharing with other current or future  		  	   		   	 		  		  		    	 		 		   		 		  
-students of CS 7646 is prohibited and subject to being investigated as a  		  	   		   	 		  		  		    	 		 		   		 		  
-GT honor code violation.  		  	   		   	 		  		  		    	 		 		   		 		  
-  		  	   		   	 		  		  		    	 		 		   		 		  
------do not edit anything above this line---  		  	   		   	 		  		  		    	 		 		   		 		  
-  		  	   		   	 		  		  		    	 		 		   		 		  
-Student Name: Zifeng He (replace with your name)  		  	   		   	 		  		  		    	 		 		   		 		  
-GT User ID: zhe343 (replace with your User ID)  		  	   		   	 		  		  		    	 		 		   		 		  
-GT ID: 903755801 (replace with your GT ID)  		  	   		   	 		  		  		    	 		 		   		 		  
-"""
-
 import datetime as dt
-import random
-import pandas as pd
 import numpy as np
-import util as ut
-import RTLearner as rt
+import pandas as pd
 import BagLearner as bl
+import RTLearner as rt
 import indicators as ind
-from scipy import stats
+import util as ut
 
 
 class StrategyLearner(object):
@@ -92,23 +61,25 @@ class StrategyLearner(object):
         dates = pd.date_range(sd, ed)
         prices_all = ut.get_data(syms, dates)  # automatically adds SPY  		  	   		   	 		  		  		    	 		 		   		 		  
         prices = prices_all[syms]  # only portfolio symbols
-        train_x = prices.replace(prices, 0)
+
+        train_x = prices * 0
         train_x['bbp'] = bbp
         train_x['ema_ratio'] = ema_ratio
         train_x['macd'] = macd
         train_x.drop(syms, axis=1, inplace=True)
-        train_y = prices.replace(prices, 0)
+        train_y = prices * 0
         prices_SPY = prices_all["SPY"]  # only SPY, for comparison later
         lookback = 14
         for i in range(len(prices) - lookback):
-            ret = prices.ix[i + lookback, symbol] / prices.ix[i, symbol] - 1.0
+            ret = prices.iloc[i + lookback, prices.columns.get_loc(symbol)] / prices.iloc[
+                i, prices.columns.get_loc(symbol)] - 1.0
             if ret > self.impact:
-                train_y.ix[i, symbol] = 1
+                train_y.iloc[i, train_y.columns.get_loc(symbol)] = 1
             elif ret < self.impact * -1:
-                train_y.ix[i, symbol] = -1
+                train_y.iloc[i, train_y.columns.get_loc(symbol)] = -1
             else:
-                train_y.ix[i, symbol] = 0
-        # test = (np.max(train_y) == np.min(train_y)).ix[0,0]
+                train_y.iloc[i, train_y.columns.get_loc(symbol)] = 0
+        # test = (np.max(train_y) == np.min(train_y)).iloc[0,0]
         # print(type(train_y))
         train_x = train_x.to_numpy()
         check_y = train_y.to_numpy()
@@ -116,7 +87,7 @@ class StrategyLearner(object):
         # check = stats.mode(train_y)[0][0]
         # print(type(check))
         self.model = bl.BagLearner(learner=rt.RTLearner, kwargs={"leaf_size": 5}, bags=30, boost=False,
-                                verbose=False)  # constructor
+                                   verbose=False)  # constructor
         self.model.add_evidence(train_x, train_y)  # training step
         # print(learner)
 
@@ -165,7 +136,7 @@ class StrategyLearner(object):
         dates = pd.date_range(sd, ed)
         prices_all = ut.get_data([symbol], dates)  # automatically adds SPY
         prices = prices_all[syms]
-        trades = prices.replace(prices, 0)
+        trades = prices * 0
         trades['Shares'] = 0
         trades.drop(syms, axis=1, inplace=True)
         trades_SPY = prices_all["SPY"]  # only SPY, for comparison later
@@ -173,8 +144,8 @@ class StrategyLearner(object):
         bbp = ind.bbp(symbol, sd, ed, lookback=14)
         ema_ratio = ind.ema_ratio(symbol, sd, ed, lookback=14)
         macd = ind.macd(symbol, sd, ed, lookback=14)
-          # only portfolio symbols
-        test_x = prices.replace(prices, 0)
+        # only portfolio symbols
+        test_x = prices * 0
         test_x['bbp'] = bbp
         test_x['ema_ratio'] = ema_ratio
         test_x['macd'] = macd
@@ -186,14 +157,14 @@ class StrategyLearner(object):
         holding = 0
         for i in range(len(trades)):
             if test_y[i] == 1:
-                trades.ix[i, 'Shares'] = max_holding - holding
-                holding += trades.ix[i, 'Shares']
+                trades.iloc[i, trades.columns.get_loc('Shares')] = max_holding - holding
+                holding += trades.iloc[i]['Shares']
             if test_y[i] == -1:
-                trades.ix[i, 'Shares'] = (max_holding + holding) * -1
-                holding += trades.ix[i, 'Shares']
+                trades.iloc[i, trades.columns.get_loc('Shares')] = (max_holding + holding) * -1
+                holding += trades.iloc[i]['Shares']
 
         if self.verbose:
-            print(type(trades)) # it better be a DataFrame!
+            print(type(trades))  # it better be a DataFrame!
         if self.verbose:
             print(trades)
         # if self.verbose:
@@ -204,9 +175,10 @@ class StrategyLearner(object):
         return 'zhe343'
 
 
-# if __name__ == "__main__":
-#     # print("One does not simply think up a strategy")
-#     learner = StrategyLearner(verbose=True, impact=0.0, commission=0.0)  # constructor
-#     learner.add_evidence(symbol="JPM", sd=dt.datetime(2008, 1, 1), ed=dt.datetime(2009, 12, 31),
-#                          sv=100000)  # training phase
-#     df_trades = learner.testPolicy(symbol="AAPL", sd=dt.datetime(2010, 1, 1), ed=dt.datetime(2011, 12, 31), sv=100000)  # testing phase
+if __name__ == "__main__":
+    # print("One does not simply think up a strategy")
+    learner = StrategyLearner(verbose=True, impact=0.0, commission=0.0)  # constructor
+    learner.add_evidence(symbol="JPM", sd=dt.datetime(2008, 1, 1), ed=dt.datetime(2009, 12, 31),
+                         sv=100000)  # training phase
+    df_trades = learner.testPolicy(symbol="AAPL", sd=dt.datetime(2010, 1, 1), ed=dt.datetime(2011, 12, 31),
+                                   sv=100000)  # testing phase

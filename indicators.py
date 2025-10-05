@@ -1,13 +1,6 @@
 import datetime as dt
-import os
-import numpy as np
 import pandas as pd
-from util import get_data, plot_data
-import matplotlib.pyplot as plt
-
-
-def author():
-    return 'zhe343'
+from util import get_data
 
 
 def bbp(symbol='JPM', sd=dt.datetime(2008, 1, 1), ed=dt.datetime(2009, 12, 31), lookback=14):
