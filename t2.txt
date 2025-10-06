@@ -1,6 +1,0 @@
-Total shares traded with 0.005 impact: Shares    267000
-dtype: int64
-Total shares traded with 0.01 impact: Shares    255000
-dtype: int64
-Total shares traded with 0.02 impact: Shares    219000
-dtype: int64

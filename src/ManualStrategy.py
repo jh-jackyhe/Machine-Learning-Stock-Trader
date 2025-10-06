@@ -2,7 +2,7 @@
 ManualStrategy.py
 Code implementing a ManualStrategy object (your Manual Strategy) in the strategy_evaluation/ directory. 
 It should implement testPolicy() which returns a trades data frame (see below). 
-The main part of this code should call marketsimcode as necessary to generate the plots used in the report.
+The main part of this code should call marketsimcode as necessary to generate the plots.
 The in-sample period is January 1, 2008 to December 31, 2009. 
 The out-of-sample/testing period is January 1, 2010 to December 31, 2011.  
 """
@@ -60,10 +60,3 @@ def benchmark(symbol='JPM', sd=dt.datetime(2008, 1, 1), ed=dt.datetime(2009, 12,
     trades.drop(['SPY', symbol], axis=1, inplace=True)
     trades.iloc[0, trades.columns.get_loc('Shares')] = 1000
     return trades
-
-
-if __name__ == "__main__":
-    df_trades = testPolicy(symbol="JPM", sd=dt.datetime(2008, 1, 1), ed=dt.datetime(2009, 12, 31), sv=100000)
-    print(df_trades)
-    # msim.compute_portvals(df_trades, symbol='JPM', start_val=100000, commission=9.95, impact=0.005)
-
