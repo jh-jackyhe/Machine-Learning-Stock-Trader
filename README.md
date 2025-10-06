@@ -1,5 +1,5 @@
 
-# Strategy Evaluation (Clean-Room)
+# Strategy Evaluation
 
 Implementation of my Machine Learning trading strategy evaluation.
 
